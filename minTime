@@ -1,0 +1,82 @@
+string minimumTimeRoute(int source,int destination){
+    priority_queue<pair<int,pair<int,string>>,vector<pair<int,pair<int,string>>>,greater<pair<int,pair<int,string>>>> pq;
+    pq.push({0,{source,""}});
+    vector<int> vis(countOfState,0);
+    
+    for(auto it:statemappingnumber){
+        numbermappingstate[it.second]=it.first;
+    }
+    
+    while(!pq.empty()){
+        int time = pq.top().first;
+        int node = pq.top().second.first;
+        string path = pq.top().second.second;
+        pq.pop();
+        vis[node]=1;
+        // for(auto it:statemappingnumber){
+        //     if(it.second==node){
+        //         // cout<<" take "<<it.first<<endl;
+        //         break;
+        //     }
+        // }
+        
+        if(node == destination){
+            string ans = "";
+            // cout<<path.length()<<endl;
+            // cout<<"Take "<<"Flight "<<"From"<<numbermappingstate[source];
+            // cout<<path<<endl;
+            int temp_num=0;
+            string temp_mode ="";
+            string temp_source=numbermappingstate[source];
+            string temp_destination="";
+            
+            // cout<<time<<endl;
+            for(int i=1;i<path.size();i++){
+                if(path[i]==' '){
+                        ans+="Take ";
+                        ans+=temp_mode;
+                        ans+=" From ";
+                        ans+=temp_source;
+                        ans+=" to ";
+                        temp_destination=numbermappingstate[temp_num];
+                        ans+=temp_destination;
+                        ans+=" then ";
+                        
+                        temp_num=0;
+                        temp_mode ="";
+                        temp_source=temp_destination;
+                        temp_destination="";
+                }else if(path[i]=='_'){
+                    continue;
+                }else if(path[i]>='A' && path[i]<='Z'){
+                    if(path[i]=='B'){
+                        temp_mode+="Bus";
+                    }else if(path[i]=='F'){
+                        temp_mode+="Flight";
+                    }else{
+                        temp_mode+="Train";
+                    }
+                }else{
+                    temp_num=temp_num*10+(path[i]-'0');
+                }
+            }
+            // cout<<ans<<endl;
+            ans+=" it will take ";
+            ans+=to_string(time);
+            ans+=" hours that is minimum time";
+            return ans;
+        }
+        
+        for(auto it:adj[node]){
+            if(vis[it.second.second]==0){
+                string temp = " ";
+                temp+=to_string(it.second.second);
+                temp+="_";
+                temp+=it.second.first;
+                temp+=" ";
+                pq.push({time+it.first.second,{it.second.second,path+temp}});
+            }
+        }
+    }
+    return"no route";
+}
