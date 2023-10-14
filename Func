@@ -1,0 +1,63 @@
+static String cheapestRoute(int source, int destination) {
+    PriorityQueue<Pair<Integer, Pair<Integer, String>> > pq = new PriorityQueue<>(Comparator.comparing(Pair::getFirst));
+    pq.add(new Pair<>(0, new Pair<>(source, "")));
+    int[] vis = new int[countOfState];
+
+    for (Map.Entry<String, Integer> entry : statemappingnumber.entrySet()) {
+        numbermappingstate.put(entry.getValue(), entry.getKey());
+    }
+
+    while (!pq.isEmpty()) {
+        int price = pq.peek().getFirst();
+        int node = pq.peek().getSecond().getFirst();
+        String path = pq.peek().getSecond().getSecond();
+        pq.poll();
+        vis[node] = 1;
+
+        if (node == destination) {
+            StringBuilder ans = new StringBuilder();
+            int tempNum = 0;
+            String tempMode = "";
+            String tempSource = numbermappingstate.get(source);
+            String tempDestination = "";
+
+            for (int i = 1; i < path.length(); i++) {
+                char currentChar = path.charAt(i);
+                if (currentChar == ' ') {
+                    if (!tempMode.isEmpty()) {
+                        ans.append("Take ").append(tempMode).append(" From ").append(tempSource)
+                            .append(" to ").append(tempDestination).append(" then ");
+                        tempNum = 0;
+                        tempMode = "";
+                        tempSource = tempDestination;
+                        tempDestination = "";
+                    }
+                } else if (currentChar == '_') {
+                    continue;
+                } else if (currentChar >= 'A' && currentChar <= 'Z') {
+                    if (currentChar == 'B') {
+                        tempMode += "Bus";
+                    } else if (currentChar == 'F') {
+                        tempMode += "Flight";
+                    } else {
+                        tempMode += "Train";
+                    }
+                } else {
+                    tempNum = tempNum * 10 + (currentChar - '0');
+                }
+            }
+
+            ans.append("it will take ").append(price).append(" price that is minimum price");
+            return ans.toString();
+        }
+
+        for (Pair<Float, Pair<String, Integer>> it : adj.get(node)) {
+            int nextNode = it.getSecond().getSecond();
+            if (vis[nextNode] == 0) {
+                String temp = " " + nextNode + "_" + it.getSecond().getFirst() + " ";
+                pq.add(new Pair<>(price + (int) Math.floor(it.getFirst()), new Pair<>(nextNode, path + temp)));
+            }
+        }
+    }
+    return "no route";
+}
