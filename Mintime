@@ -1,1 +1,143 @@
 a
+import java.util.*;
+
+public class Main {
+    static class Pair<U, V> {
+        U first;
+        V second;
+
+        Pair(U first, V second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public U getFirst() {
+            return first;
+        }
+
+        public V getSecond() {
+            return second;
+        }
+
+        public void setFirst(U first) {
+            this.first = first;
+        }
+
+        public void setSecond(V second) {
+            this.second = second;
+        }
+    }
+
+    static int countOfState = 1000000;
+    static ArrayList<ArrayList<Pair<Float, Pair<String, Integer>>> adj = new ArrayList<>();
+    static HashMap<String, Integer> stateMappingNumber = new HashMap<>();
+
+    public static void addInGraph(int source, int destination, float price, float time, char mode) {
+        adj.get(source).add(new Pair<>(price, new Pair<>(mode, destination)));
+    }
+
+    public static void makeGraph(String source, String destination, float price, float time, char mode) {
+        int sourceNum, destinationNum;
+        if (stateMappingNumber.containsKey(source)) {
+            sourceNum = stateMappingNumber.get(source);
+        } else {
+            stateMappingNumber.put(source, countOfState);
+            sourceNum = countOfState;
+            countOfState += 1;
+        }
+
+        if (stateMappingNumber.containsKey(destination)) {
+            destinationNum = stateMappingNumber.get(destination);
+        } else {
+            stateMappingNumber.put(destination, countOfState);
+            destinationNum = countOfState;
+            countOfState += 1;
+        }
+
+        addInGraph(sourceNum, destinationNum, price, time, mode);
+    }
+
+    public static String minimumTimeRoute(int source, int destination) {
+        PriorityQueue<Pair<Integer, Pair<Integer, String>> pq = new PriorityQueue<>(new Comparator<Pair<Integer, Pair<Integer, String>>() {
+            public int compare(Pair<Integer, Pair<Integer, String>> a, Pair<Integer, Pair<Integer, String>> b) {
+                return Integer.compare(a.first, b.first);
+            }
+        });
+
+        pq.add(new Pair<>(0, new Pair<>(source, ""));
+
+        int[] vis = new int[countOfState];
+
+        while (!pq.isEmpty()) {
+            int price = pq.peek().first;
+            int node = pq.peek().second.first;
+            String path = pq.peek().second.second;
+            pq.poll();
+            vis[node] = 1;
+
+            if (node == destination) {
+                StringBuilder ans = new StringBuilder();
+                int tempNum = 0;
+                String tempMode = "";
+                String tempSource = stateMappingNumber.keySet()
+                        .stream()
+                        .filter(key -> stateMappingNumber.get(key) == source)
+                        .findFirst()
+                        .orElse("");
+                String tempDestination = "";
+
+                for (int i = 1; i < path.length(); i++) {
+                    if (path.charAt(i) == ' ') {
+                        if (!tempMode.isEmpty()) {
+                            ans.append("Take ").append(tempMode);
+                            ans.append(" From ").append(tempSource);
+                            ans.append(" to ").append(tempDestination);
+                            ans.append(" then ");
+
+                            tempNum = 0;
+                            tempMode = "";
+                            tempSource = tempDestination;
+                            tempDestination = "";
+                        }
+                    } else if (path.charAt(i) == '_') {
+                        continue;
+                    } else if (path.charAt(i) >= 'A' && path.charAt(i) <= 'Z') {
+                        if (path.charAt(i) == 'B') {
+                            tempMode = "Bus";
+                        } else if (path.charAt(i) == 'F') {
+                            tempMode = "Flight";
+                        } else {
+                            tempMode = "Train";
+                        }
+                    } else {
+                        tempNum = tempNum * 10 + (path.charAt(i) - '0');
+                    }
+                }
+
+                ans.append(" It will take ").append(price).append(" price that is the minimum price");
+                return ans.toString();
+            }
+
+            for (Pair<Float, Pair<String, Integer>> it : adj.get(node)) {
+                if (vis[it.second.second] == 0) {
+                    StringBuilder temp = new StringBuilder();
+                    temp.append(" ").append(it.second.second);
+                    temp.append("_").append(it.second.first);
+                    temp.append(" ");
+                    pq.add(new Pair<>(price + it.first, new Pair<>(it.second.second, path + temp.toString()));
+                }
+            }
+        }
+        return "no route";
+    }
+
+    public static void main(String[] args) {
+        for (int i = 0; i < 1000000; i++) {
+            adj.add(new ArrayList<>());
+        }
+
+        makeGraph("Delhi", "Chandigarh", 5000.0, 2.0, 'F');
+        makeGraph("Delhi", "Chandigarh", 2000.0, 4.0, 'T');
+        makeGraph("Delhi", "Chandigarh", 300.0, 6.0, 'B');
+        makeGraph("Delhi", "Patiala", 1800.0, 6.0, 'T');
+        makeGraph("Delhi", "Patiala", 800.0, 8
