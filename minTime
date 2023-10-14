@@ -13,24 +13,12 @@ string minimumTimeRoute(int source,int destination){
         string path = pq.top().second.second;
         pq.pop();
         vis[node]=1;
-        // for(auto it:statemappingnumber){
-        //     if(it.second==node){
-        //         // cout<<" take "<<it.first<<endl;
-        //         break;
-        //     }
-        // }
-        
         if(node == destination){
             string ans = "";
-            // cout<<path.length()<<endl;
-            // cout<<"Take "<<"Flight "<<"From"<<numbermappingstate[source];
-            // cout<<path<<endl;
             int temp_num=0;
             string temp_mode ="";
             string temp_source=numbermappingstate[source];
             string temp_destination="";
-            
-            // cout<<time<<endl;
             for(int i=1;i<path.size();i++){
                 if(path[i]==' '){
                         ans+="Take ";
@@ -60,7 +48,6 @@ string minimumTimeRoute(int source,int destination){
                     temp_num=temp_num*10+(path[i]-'0');
                 }
             }
-            // cout<<ans<<endl;
             ans+=" it will take ";
             ans+=to_string(time);
             ans+=" hours that is minimum time";
