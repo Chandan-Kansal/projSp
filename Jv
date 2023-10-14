@@ -1,0 +1,68 @@
+
+    public static String minimumTimeRoute(int source, int destination) {
+        PriorityQueue<Pair<Integer, Pair<Integer, String>> pq = new PriorityQueue<>(Comparator.comparingInt(state -> state.first));
+        pq.add(new Pair<>(0, new Pair<>(source, ""));
+
+        int[] vis = new int[countOfState];
+
+        while (!pq.isEmpty()) {
+            Pair<Integer, Pair<Integer, String>> currState = pq.poll();
+            int price = currState.first;
+            int node = currState.second.first;
+            String path = currState.second.second;
+            vis[node] = 1;
+
+            if (node == destination) {
+                StringBuilder ans = new StringBuilder();
+                int tempNum = 0;
+                String tempMode = "";
+                String tempSource = stateMappingNumber.keySet()
+                        .stream()
+                        .filter(key -> stateMappingNumber.get(key) == source)
+                        .findFirst()
+                        .orElse("");
+                String tempDestination = "";
+
+                for (int i = 1; i < path.length(); i++) {
+                    if (path.charAt(i) == ' ') {
+                        if (!tempMode.isEmpty()) {
+                            ans.append("Take ").append(tempMode);
+                            ans.append(" From ").append(tempSource);
+                            ans.append(" to ").append(tempDestination);
+                            ans.append(" then ");
+
+                            tempNum = 0;
+                            tempMode = "";
+                            tempSource = tempDestination;
+                            tempDestination = "";
+                        }
+                    } else if (path.charAt(i) == '_') {
+                        continue;
+                    } else if (path.charAt(i) >= 'A' && path.charAt(i) <= 'Z') {
+                        if (path.charAt(i) == 'B') {
+                            tempMode = "Bus";
+                        } else if (path.charAt(i) == 'F') {
+                            tempMode = "Flight";
+                        } else {
+                            tempMode = "Train";
+                        }
+                    } else {
+                        tempNum = tempNum * 10 + (path.charAt(i) - '0');
+                    }
+                }
+
+                ans.append(" It will take ").append(price);
+                ans.append(" price that is the minimum price");
+                return ans.toString();
+            }
+
+            for (Pair<Float, Pair<String, Integer>> it : adj.get(node)) {
+                if (vis[it.second.second] == 0) {
+                    StringBuilder temp = new StringBuilder();
+                    temp.append(" ").append(it.second.second).append("_").append(it.second.first).append(" ");
+                    pq.add(new Pair<>(price + it.first.intValue(), new Pair<>(it.second.second, path + temp.toString()));
+                }
+            }
+        }
+        return "no route";
+    }
